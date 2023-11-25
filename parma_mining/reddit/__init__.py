@@ -1,4 +1,4 @@
-"""reddit data sourcing package."""
+"""Reddit data sourcing package."""
 
 import importlib.metadata
 
