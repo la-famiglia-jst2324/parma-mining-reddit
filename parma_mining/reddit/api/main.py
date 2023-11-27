@@ -1,5 +1,5 @@
 """Main entrypoint for the API routes in of parma-analytics."""
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status
 from typing import List
 from parma_mining.reddit.client import RedditClient
 
@@ -14,10 +14,11 @@ def root():
 
 
 @app.post("/get_reddit_data")
-def get_reddit_data(companies: List[str]):
+def get_reddit_data(companies: List[str]) -> dict:
     if not companies:
-        raise HTTPException(status_code=400, detail="Company list is empty")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Company list is empty!"
+        )
     reddit_client = RedditClient()
-    reddit_client.get_reddit_data(companies)
-    results = reddit_client.get_results()
+    results = reddit_client.get_reddit_data(companies)
     return {"results": results}

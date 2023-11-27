@@ -18,7 +18,7 @@ class RedditClient:
         self.data_source_url = "https://www.reddit.com/"
         self.results = {}
 
-    def get_reddit_data(self, companies):
+    def get_reddit_data(self, companies: list) -> dict:
         query_set = {}
         for company in companies:
             results = self.reddit.subreddit("all").search(
@@ -29,12 +29,12 @@ class RedditClient:
         result_set = {}
         for company, results in query_set.items():
             # creating the final dictionary
-            item = {}
-            # initialize necessary fields
-            item["company"] = company
-            item["data_source"] = self.data_source
-            item["url"] = self.data_source_url
-            item["submissions"] = []
+            item = {
+                "company": company,
+                "data_source": self.data_source,
+                "url": self.data_source_url,
+                "submissions": [],
+            }
             for submission in results:
                 # collect comments
                 submission.comments.replace_more(limit=10)
@@ -79,11 +79,8 @@ class RedditClient:
 
             result_set[company] = item
 
-        self.results = result_set
+        return result_set
 
-    def get_results(self):
-        return self.results
-
-    def print_results(self):
+    def convert_results_to_json(self) -> str:
         result_json = json.dumps(self.results, indent=4)
-        print(result_json)
+        return result_json
