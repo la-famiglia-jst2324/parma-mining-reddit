@@ -13,7 +13,7 @@ def root():
     return {"welcome": "at parma-mining-reddit"}
 
 
-@app.post("/get_reddit_data")
+@app.post("/get_reddit_data", status_code=status.HTTP_200_OK)
 def get_reddit_data(companies: List[str]) -> dict:
     if not companies:
         raise HTTPException(
