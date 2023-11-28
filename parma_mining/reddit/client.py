@@ -9,13 +9,14 @@ class RedditClient:
     def __init__(self):
         load_dotenv()
         reddit_api_key = os.getenv("REDDIT_API_KEY")
+        reddit_client_id = os.getenv("REDDIT_CLIENT_ID")
         self.reddit = praw.Reddit(
-            client_id="JgHo7ALWRJWT2EX7wLmKtw",
+            client_id=reddit_client_id,
             client_secret=reddit_api_key,
             user_agent="Startup_Data/1.0 (by /u/seyter61)",
         )
         self.data_source = "Reddit"
-        self.data_source_url = "https://www.reddit.com/"
+        self.data_source_url = os.getenv("REDDIT_BASE_URL")
         self.results = {}
 
     def get_reddit_data(self, companies: list) -> dict:
