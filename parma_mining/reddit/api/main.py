@@ -5,6 +5,8 @@ from parma_mining.reddit.client import RedditClient
 
 app = FastAPI()
 
+reddit_client = RedditClient()
+
 
 # root endpoint
 @app.get("/", status_code=200)
@@ -14,11 +16,11 @@ def root():
 
 
 @app.post("/get_reddit_data", status_code=status.HTTP_200_OK)
-def get_reddit_data(companies: List[str]) -> dict:
+def get_reddit_data(companies: List[str]) -> list:
     if not companies:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Company list is empty!"
         )
-    reddit_client = RedditClient()
+    # use the client initialized in the init endpoint
     results = reddit_client.get_reddit_data(companies)
-    return {"results": results}
+    return results
