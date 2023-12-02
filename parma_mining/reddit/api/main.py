@@ -15,8 +15,8 @@ def root():
     return {"welcome": "at parma-mining-reddit"}
 
 
-@app.post("/get_reddit_data", status_code=status.HTTP_200_OK)
-def get_reddit_data(companies: List[str]) -> list:
+@app.post("/get_company_info", status_code=status.HTTP_200_OK)
+def get_company_info(companies: List[str]) -> list:
     if not companies:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Company list is empty!"

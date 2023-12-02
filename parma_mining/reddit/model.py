@@ -40,4 +40,5 @@ class SubmissionModel(BaseModel):
 class CompanyModel(BaseModel):
     name: str
     data_source: str
+    url: str
     submissions: List[SubmissionModel]
