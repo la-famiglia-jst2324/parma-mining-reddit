@@ -16,6 +16,10 @@ defaults:
 
 env:
   TF_VAR_FIREBASE_ADMIN_SDK: ${{ github.event_name == 'release' && secrets.PROD_FIREBASE_ADMIN_SDK || secrets.STAGING_FIREBASE_ADMIN_SDK}}
+  TF_VAR_REDDIT_API_KEY: ${{ secrets.REDDIT_API_KEY }}
+  TF_VAR_REDDIT_BASE_URL: ${{ env.REDDIT_BASE_URL }}
+  TF_VAR_REDDIT_CLIENT_ID: ${{ env.REDDIT_CLIENT_ID }}
+  TF_VAR_REDDIT_DATA_SOURCE: ${{ env.REDDIT_DATA_SOURCE }}
 
 jobs:
   deploy:

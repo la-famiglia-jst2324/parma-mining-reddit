@@ -39,6 +39,22 @@ resource "google_cloud_run_service" "parma_mining_reddit_cloud_run" {
           name  = "FIREBASE_ADMIN_SDK"
           value = var.FIREBASE_ADMIN_SDK
         }
+        env {
+          name  = "REDDIT_API_KEY"
+          value = var.REDDIT_API_KEY
+        }
+        env {
+          name  = "REDDIT_BASE_URL"
+          value = var.REDDIT_BASE_URL
+        }
+        env {
+          name  = "REDDIT_CLIENT_ID"
+          value = var.REDDIT_CLIENT_ID
+        }
+        env {
+          name  = "REDDIT_DATA_SOURCE"
+          value = var.REDDIT_DATA_SOURCE
+        }
       }
     }
   }

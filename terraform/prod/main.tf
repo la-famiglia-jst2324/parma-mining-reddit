@@ -34,4 +34,8 @@ module "main" {
   project          = local.project
   region           = local.region
   FIREBASE_ADMIN_SDK = var.FIREBASE_ADMIN_SDK
+  REDDIT_API_KEY = var.REDDIT_API_KEY
+  REDDIT_BASE_URL = var.REDDIT_BASE_URL
+  REDDIT_CLIENT_ID = var.REDDIT_CLIENT_ID
+  REDDIT_DATA_SOURCE = var.REDDIT_DATA_SOURCE
 }
