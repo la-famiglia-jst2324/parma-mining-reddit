@@ -28,7 +28,6 @@ class RedditClient:
                 query=company, sort="relevance", time_filter="all", limit=10
             )
             query_set[company] = results
-
         companies = []
         for company, results in query_set.items():
             # creating the company model
@@ -92,8 +91,3 @@ class RedditClient:
             companies.append(CompanyModel.model_validate(company_info))
 
         return companies
-
-
-if __name__ == "__main__":
-    reddit_client = RedditClient()
-    results = reddit_client.get_reddit_data(["Vespa.ai", "Soundhound"])
