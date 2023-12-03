@@ -33,7 +33,7 @@ module "main" {
   env              = "staging"
   project          = local.project
   region           = local.region
-  FIREBASE_ADMIN_SDK = var.FIREBASE_ADMIN_SDK
+  FIREBASE_ADMINSDK_CERTIFICATE = var.FIREBASE_ADMINSDK_CERTIFICATE
   REDDIT_API_KEY = var.REDDIT_API_KEY
   REDDIT_BASE_URL = var.REDDIT_BASE_URL
   REDDIT_CLIENT_ID = var.REDDIT_CLIENT_ID
