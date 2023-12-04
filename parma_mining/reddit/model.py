@@ -1,6 +1,5 @@
 from datetime import datetime
 from pydantic import BaseModel
-from typing import List
 
 
 class CommentModel(BaseModel):
@@ -17,7 +16,7 @@ class SubmissionModel(BaseModel):
 
     author: str
     comment_count: int
-    comments: List[CommentModel]
+    comments: list[CommentModel]
     created_at: datetime
     edited: bool
     id: str
@@ -41,4 +40,4 @@ class CompanyModel(BaseModel):
     name: str
     data_source: str
     url: str
-    submissions: List[SubmissionModel]
+    submissions: list[SubmissionModel]

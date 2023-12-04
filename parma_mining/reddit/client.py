@@ -1,9 +1,7 @@
 import praw
-import json
 from datetime import datetime
 from dotenv import load_dotenv
 import os
-from typing import List
 from parma_mining.reddit.model import CompanyModel, SubmissionModel, CommentModel
 
 

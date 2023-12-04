@@ -53,18 +53,6 @@ def mock_reddit_client(mocker) -> MagicMock:
     return mock
 
 
-# test for following endpoint
-# '@app.post("/get_company_info", status_code=status.HTTP_200_OK)
-# def get_company_info(companies: List[str]) -> list:
-#     if not companies:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST, detail="Company list is empty!"
-#         )
-#     # use the client initialized in the init endpoint
-#     results = reddit_client.get_reddit_data(companies)
-#     return results'
-
-
 def test_get_company_info(mock_reddit_client: MagicMock):
     # give list of companies as argument of the post request
     response = client.post("/get_company_info", json=["TestCompany"])
