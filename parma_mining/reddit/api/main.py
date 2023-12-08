@@ -30,6 +30,5 @@ def get_company_info(companies: list[str]) -> list[CompanyModel]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Company list is empty!"
         )
-    # use the client initialized in the init endpoint
     results = reddit_client.get_reddit_data(companies)
     return results
