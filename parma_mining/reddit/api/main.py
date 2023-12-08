@@ -2,6 +2,7 @@
 from fastapi import FastAPI, HTTPException, status
 from parma_mining.reddit.client import RedditClient
 from parma_mining.reddit.model import CompanyModel
+import json
 
 app = FastAPI()
 
@@ -15,6 +16,14 @@ def root():
     return {"welcome": "at parma-mining-reddit"}
 
 
+# initialization endpoint
+@app.get("/initialize", status_code=200)
+def initialize() -> str:
+    """Initialization endpoint for the API."""
+    return json.dumps(reddit_client.initialize_normalization_map())
+
+
+# company info endpoint
 @app.post("/get_company_info", status_code=status.HTTP_200_OK)
 def get_company_info(companies: list[str]) -> list[CompanyModel]:
     if not companies:

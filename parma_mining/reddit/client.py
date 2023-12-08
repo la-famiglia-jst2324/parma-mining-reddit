@@ -3,9 +3,15 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 from parma_mining.reddit.model import CompanyModel, SubmissionModel, CommentModel
+from parma_mining.reddit.normalization_map import RedditNormalizationMap
+from typing import List, Dict, Union
 
 
 class RedditClient:
+    normalization_map: Dict[
+        str, Union[str, List[Dict[str, Union[str, List[Dict[str, Union[str, str]]]]]]]
+    ] = {}
+
     def __init__(self):
         load_dotenv()
         reddit_api_key = os.getenv("REDDIT_API_KEY")
@@ -18,6 +24,10 @@ class RedditClient:
         self.data_source = "Reddit"
         self.data_source_url = os.getenv("REDDIT_BASE_URL")
         self.results = {}
+
+    def initialize_normalization_map(self) -> dict:
+        self.normalization_map = RedditNormalizationMap().get_normalization_map()
+        return self.normalization_map
 
     def get_reddit_data(self, companies: list) -> list[CompanyModel]:
         query_set = {}
