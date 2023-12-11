@@ -55,7 +55,7 @@ def mock_reddit_client(mocker) -> MagicMock:
 
 def test_get_company_info(mock_reddit_client: MagicMock):
     # give list of companies as argument of the post request
-    response = client.post("/get_company_info", json=["TestCompany"])
+    response = client.post("/companies", json=["TestCompany"])
 
     assert response.status_code == 200
 
@@ -107,5 +107,5 @@ def test_get_reddit_data_bad_request(mocker):
         ),
     )
 
-    response = client.get("/organization/notExisting")
+    response = client.get("/companies/notExisting")
     assert response.status_code == 404

@@ -70,7 +70,7 @@ class RedditNormalizationMap:
                         "MeasurementName": "repository homepage url",
                     },
                     {
-                        "SourceField": "scaped_at",
+                        "SourceField": "scraped_at",
                         "DataType": "date",
                         "MeasurementName": "timestamp of scraping",
                     },

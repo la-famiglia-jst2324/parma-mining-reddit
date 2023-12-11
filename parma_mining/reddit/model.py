@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel
+from typing import List, Dict, Optional
 
 
 class CommentModel(BaseModel):
@@ -41,3 +42,12 @@ class CompanyModel(BaseModel):
     data_source: str
     url: str
     submissions: list[SubmissionModel]
+
+
+class DiscoveryModel(BaseModel):
+    name: Optional[str]
+    url: Optional[str]
+
+
+class CompaniesRequest(BaseModel):
+    companies: Dict[str, List[str]]

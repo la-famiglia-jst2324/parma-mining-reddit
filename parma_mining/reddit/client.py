@@ -14,15 +14,15 @@ class RedditClient:
 
     def __init__(self):
         load_dotenv()
-        reddit_api_key = os.getenv("REDDIT_API_KEY")
-        reddit_client_id = os.getenv("REDDIT_CLIENT_ID")
+        reddit_api_key = str(os.getenv("REDDIT_API_KEY") or "")
+        reddit_client_id = str(os.getenv("REDDIT_CLIENT_ID") or "")
         self.reddit = praw.Reddit(
             client_id=reddit_client_id,
             client_secret=reddit_api_key,
             user_agent="Startup_Data/1.0 (by /u/seyter61)",
         )
         self.data_source = "Reddit"
-        self.data_source_url = os.getenv("REDDIT_BASE_URL")
+        self.data_source_url = str(os.getenv("REDDIT_BASE_URL") or "")
         self.results = {}
 
     def initialize_normalization_map(self) -> dict:
@@ -99,3 +99,28 @@ class RedditClient:
             companies.append(CompanyModel.model_validate(company_info))
 
         return companies
+
+    def assign_ids(self, mapping, parent_id=None, current_id=1):
+        result = []
+
+        for field_mapping in mapping["Mappings"]:
+            measurement_id = current_id
+            measurement = {
+                "id": measurement_id,
+                "parent_id": parent_id,
+                "type": field_mapping["DataType"],
+                "measurement_name": field_mapping["MeasurementName"],
+            }
+
+            if "NestedMappings" in field_mapping:
+                nested_measurements, current_id = self.assign_ids(
+                    {"Mappings": field_mapping["NestedMappings"]},
+                    parent_id=measurement_id,
+                    current_id=current_id + 1,
+                )
+                result.extend(nested_measurements)
+
+            result.append(measurement)
+            current_id += 1
+
+        return result, current_id
