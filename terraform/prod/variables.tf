@@ -24,3 +24,8 @@ variable "REDDIT_DATA_SOURCE" {
   description = "value"
   type        = string
 }
+
+variable "ANALYTICS_BASE_URL" {
+  description = "value"
+  type        = string
+}
