@@ -30,11 +30,6 @@ class RedditNormalizationMap:
                         "MeasurementName": "submission creation date",
                     },
                     {
-                        "SourceField": "edited",
-                        "DataType": "boolean",
-                        "MeasurementName": "is submission edited",
-                    },
-                    {
                         "SourceField": "id",
                         "DataType": "text",
                         "MeasurementName": "id of submission",

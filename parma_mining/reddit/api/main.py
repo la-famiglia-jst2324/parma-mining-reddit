@@ -3,11 +3,10 @@ from fastapi import FastAPI, HTTPException, status
 from parma_mining.reddit.client import RedditClient
 from parma_mining.reddit.model import CompanyModel, CompaniesRequest, DiscoveryModel
 from parma_mining.reddit.api.analytics_client import AnalyticsClient
+from typing import List, Dict, Optional
 import json
 
-
 app = FastAPI()
-source_id = 1  # it is for now, we must formally define unniqe source module ids for all of our modules
 reddit_client = RedditClient()
 analytics_client = AnalyticsClient()
 
@@ -21,7 +20,7 @@ def root():
 
 # initialization endpoint
 @app.get("/initialize", status_code=200)
-def initialize() -> str:
+def initialize(source_id: int) -> str:
     """Initialization endpoint for the API."""
     # init frequency
     time = "weekly"
@@ -38,41 +37,33 @@ def initialize() -> str:
     return json.dumps(results)
 
 
+# get company details endpoint
 @app.post(
     "/companies",
-    response_model=list[CompanyModel],
+    response_model=List[CompanyModel],
     status_code=status.HTTP_200_OK,
 )
-def get_company_info(companies: CompaniesRequest) -> list[CompanyModel]:
-    if not companies:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Company list is empty!"
-        )
-    results = reddit_client.get_reddit_data(companies)
+def get_company_info(companies: CompaniesRequest) -> List[CompanyModel]:
+    all_org_details = []
+    for company_id, search_keys in companies.companies.items():
+        for key in search_keys:
+            search_list = companies.companies[company_id][key]
+            for search_string in search_list:
+                org_details = reddit_client.get_company_details(
+                    search_str=search_string, company_id=company_id, search_type=key
+                )
+                all_org_details.append(org_details)
+
+    return all_org_details
+
+
+# discovery endpoint ( for reddit this endpoint enables searching for subreddits)
+@app.get(
+    "/discover",
+    response_model=List[DiscoveryModel],
+    status_code=status.HTTP_200_OK,
+)
+def discover_subreddits(query: str) -> List[DiscoveryModel]:
+    """Discovery endpoint for the API."""
+    results = reddit_client.discover_subreddits(query)
     return results
-
-
-# @app.post(
-#     "/organizations",
-#     response_model=List[OrganizationModel],
-#     status_code=status.HTTP_200_OK,
-# )
-# def get_organization_details(companies: CompaniesRequest) -> List[OrganizationModel]:
-#     """Endpoint to get detailed information about a dict of organizations."""
-#     all_org_details = []
-#     for company_name, handles in companies.companies.items():
-#         for handle in handles:
-#             org_details = github_client.get_organization_details(handle)
-#             all_org_details.append(org_details)
-
-#     return all_org_details
-
-
-# @app.get(
-#     "/search/companies",
-#     response_model=list[DiscoveryModel],
-#     status_code=status.HTTP_200_OK,
-# )
-# def search_companies(query: str):
-#     """Endpoint to search GitHub organizations based on a query."""
-#     return github_client.search_organizations(query)
