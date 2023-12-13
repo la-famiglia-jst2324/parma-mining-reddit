@@ -26,9 +26,9 @@ def initialize(source_id: int) -> str:
     time = "weekly"
     normalization_map = reddit_client.initialize_normalization_map()
     # register the measurements to analytics
-    analytics_client.register_measurements(
+    normalization_map = analytics_client.register_measurements(
         normalization_map, source_module_id=source_id
-    )
+    )[1]
 
     # set and return results
     results = {}
@@ -53,6 +53,8 @@ def get_company_info(companies: CompaniesRequest) -> List[CompanyModel]:
                     search_str=search_string, company_id=company_id, search_type=key
                 )
                 all_org_details.append(org_details)
+
+    # feed the raw data to analytics
 
     return all_org_details
 

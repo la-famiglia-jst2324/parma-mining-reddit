@@ -4,11 +4,21 @@ class RedditNormalizationMap:
         "Source": "Reddit",
         "Mappings": [
             {
-                "SourceField": "name",
+                "SourceField": "id",
                 "DataType": "text",
-                "MeasurementName": "company name",
+                "MeasurementName": "company id",
             },
             {"SourceField": "url", "DataType": "link", "MeasurementName": "reddit url"},
+            {
+                "SourceField": "search_key",
+                "DataType": "text",
+                "MeasurementName": "search key used to find company",
+            },
+            {
+                "SourceField": "search_type",
+                "DataType": "text",
+                "MeasurementName": "type of search used to find company",
+            },
             {
                 "SourceField": "submissions",
                 "DataType": "nested",

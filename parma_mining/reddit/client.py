@@ -38,7 +38,7 @@ class RedditClient:
         self, search_str: str, company_id: str, search_type: str, subreddit="all"
     ) -> CompanyModel:
         results = self.reddit.subreddit(subreddit).search(
-            query=search_str, sort="relevance", time_filter="all", limit=10
+            query=search_str, sort="relevance", time_filter="all", limit=5
         )
         submissions = []
         company_info = {
@@ -51,7 +51,7 @@ class RedditClient:
         }
         for submission in results:
             # collect comments
-            submission.comments.replace_more(limit=10)
+            submission.comments.replace_more(limit=5)
             all_comments = submission.comments.list()
             # get the comments and store them in a list
             comments = []
