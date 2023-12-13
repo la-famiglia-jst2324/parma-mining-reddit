@@ -12,7 +12,6 @@ class AnalyticsClient:
 
     measurement_url = analytics_base + "/source-measurement"
     feed_raw_url = analytics_base + "/feed-raw-data"
-    feed_raw_url = "http://127.0.0.1:8000/feed-raw-data"
 
     def send_post_request(self, data):
         api_endpoint = self.measurement_url
