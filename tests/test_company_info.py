@@ -187,7 +187,7 @@ def test_get_company_details(mock_reddit_client: MagicMock):
     ]
 
 
-def test_get_organization_details_bad_request(mocker):
+def test_get_company_details_bad_request(mocker):
     mocker.patch(
         "parma_mining.reddit.api.main.RedditClient.get_company_details",
         side_effect=HTTPException(

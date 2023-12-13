@@ -4,14 +4,15 @@ from dotenv import load_dotenv
 from parma_mining.reddit.model import CompanyModel
 import os
 import json
+import urllib.parse
 
 
 class AnalyticsClient:
     load_dotenv()
     analytics_base = str(os.getenv("ANALYTICS_BASE_URL") or "")
 
-    measurement_url = analytics_base + "/source-measurement"
-    feed_raw_url = analytics_base + "/feed-raw-data"
+    measurement_url = urllib.parse.urljoin(analytics_base, "/measurements")
+    feed_raw_url = urllib.parse.urljoin(analytics_base, "/feed-raw")
 
     def send_post_request(self, data):
         api_endpoint = self.measurement_url
@@ -77,6 +78,8 @@ class AnalyticsClient:
 
             if response.status_code == 201:
                 return response.json()
+            elif response.status_code == 404:
+                pass
             else:
                 raise Exception(
                     f"API request failed with status code {response.status_code}"
