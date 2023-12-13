@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from pydantic import BaseModel
 from typing import List, Dict, Optional
 
@@ -42,7 +43,20 @@ class CompanyModel(BaseModel):
     search_type: Optional[str]  # "name" or "domain" or another type
     data_source: Optional[str]
     url: Optional[str]
-    submissions: Optional[List[SubmissionModel]]
+    submissions: Optional[list[SubmissionModel]]
+
+    def updated_model_dump(self) -> str:
+        """Dump the CompanyModel instance to a JSON string."""
+        # Convert datetime objects to string representation
+        json_serializable_dict = self.model_dump()
+        subs = []
+        if self.submissions:
+            for sub in self.submissions:
+                if sub:
+                    subs.append(sub.model_dump())
+        json_serializable_dict["submissions"] = subs
+
+        return json.dumps(json_serializable_dict, default=str)
 
 
 class DiscoveryModel(BaseModel):

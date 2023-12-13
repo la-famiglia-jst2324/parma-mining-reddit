@@ -3,6 +3,7 @@ import httpx
 from dotenv import load_dotenv
 from parma_mining.reddit.model import CompanyModel
 import os
+import json
 
 
 class AnalyticsClient:
@@ -58,3 +59,26 @@ class AnalyticsClient:
                 result.extend(nested_measurements)
             result.append(measurement_data)
         return result, mapping
+
+    def feed_raw_data(self, data):
+        api_endpoint = self.feed_raw_url
+        headers = {
+            "Content-Type": "application/json",
+        }
+        for company in data:
+            # make the company model json serializable
+            raw_data = json.loads(company.updated_model_dump())
+            data = {
+                "source_name": str(company.data_source),
+                "company_id": str(company.id),
+                "raw_data": raw_data,
+            }
+
+            response = httpx.post(api_endpoint, json=data, headers=headers)
+
+            if response.status_code == 201:
+                return response.json()
+            else:
+                raise Exception(
+                    f"API request failed with status code {response.status_code}"
+                )

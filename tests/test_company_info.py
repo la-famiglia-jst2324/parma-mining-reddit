@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 from starlette import status
 from unittest.mock import MagicMock
 from parma_mining.reddit.api.main import app
+from parma_mining.reddit.model import CompanyModel
 
 client = TestClient(app)
 
@@ -12,43 +13,45 @@ client = TestClient(app)
 def mock_reddit_client(mocker) -> MagicMock:
     """Mocking the RedditClient's method to avoid actual API calls during testing."""
     mock = mocker.patch("parma_mining.reddit.api.main.RedditClient.get_company_details")
-    mock.return_value = {
-        "id": "TestCompany",
-        "search_key": "TestCompany",
-        "search_type": "name",
-        "data_source": "Reddit",
-        "url": "https://reddit.com",
-        "submissions": [
-            {
-                "author": "TestAuthor",
-                "comment_count": 10,
-                "comments": [
-                    {
-                        "author": "TestAuthor",
-                        "text": "TestComment",
-                        "upvotes": 10,
-                        "downvotes": 2,
-                    }
-                ],
-                "created_at": "2021-01-01T00:00:00Z",
-                "id": "TestID",
-                "is_original_content": False,
-                "is_self": False,
-                "is_video": False,
-                "over18": False,
-                "permalink": "https://reddit.com",
-                "scraped_at": "2021-01-01T00:00:00Z",
-                "score": 10,
-                "subreddit_name": "TestSubreddit",
-                "subreddit_description": "TestDescription",
-                "subreddit_subscribers": 100,
-                "title": "TestTitle",
-                "text": "TestText",
-                "upvote_ratio": 0.5,
-                "url": "https://reddit.com",
-            }
-        ],
-    }
+    mock.return_value = CompanyModel.model_validate(
+        {
+            "id": "TestCompany",
+            "search_key": "TestCompany",
+            "search_type": "name",
+            "data_source": "Reddit",
+            "url": "https://reddit.com",
+            "submissions": [
+                {
+                    "author": "TestAuthor",
+                    "comment_count": 10,
+                    "comments": [
+                        {
+                            "author": "TestAuthor",
+                            "text": "TestComment",
+                            "upvotes": 10,
+                            "downvotes": 2,
+                        }
+                    ],
+                    "created_at": "2021-01-01T00:00:00Z",
+                    "id": "TestID",
+                    "is_original_content": False,
+                    "is_self": False,
+                    "is_video": False,
+                    "over18": False,
+                    "permalink": "https://reddit.com",
+                    "scraped_at": "2021-01-01T00:00:00Z",
+                    "score": 10,
+                    "subreddit_name": "TestSubreddit",
+                    "subreddit_description": "TestDescription",
+                    "subreddit_subscribers": 100,
+                    "title": "TestTitle",
+                    "text": "TestText",
+                    "upvote_ratio": 0.5,
+                    "url": "https://reddit.com",
+                }
+            ],
+        }
+    )
     return mock
 
 

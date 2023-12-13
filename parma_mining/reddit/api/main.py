@@ -55,7 +55,8 @@ def get_company_info(companies: CompaniesRequest) -> List[CompanyModel]:
                 all_org_details.append(org_details)
 
     # feed the raw data to analytics
-
+    response = analytics_client.feed_raw_data(all_org_details)
+    print("Response:", response)
     return all_org_details
 
 
