@@ -51,7 +51,7 @@ class RedditClient:
         }
         for submission in results:
             # collect comments
-            submission.comments.replace_more(limit=5)
+            submission.comments.replace_more(limit=2)
             all_comments = submission.comments.list()
             # get the comments and store them in a list
             comments = []

@@ -11,8 +11,8 @@ class AnalyticsClient:
     load_dotenv()
     analytics_base = str(os.getenv("ANALYTICS_BASE_URL") or "")
 
-    measurement_url = urllib.parse.urljoin(analytics_base, "/measurements")
-    feed_raw_url = urllib.parse.urljoin(analytics_base, "/feed-raw")
+    measurement_url = urllib.parse.urljoin(analytics_base, "/source-measurement")
+    feed_raw_url = urllib.parse.urljoin(analytics_base, "/feed-raw-data")
 
     def send_post_request(self, data):
         api_endpoint = self.measurement_url
@@ -60,27 +60,26 @@ class AnalyticsClient:
             result.append(measurement_data)
         return result, mapping
 
-    def feed_raw_data(self, data):
+    def feed_raw_data(self, company: CompanyModel):
         api_endpoint = self.feed_raw_url
         headers = {
             "Content-Type": "application/json",
         }
-        for company in data:
-            # make the company model json serializable
-            raw_data = json.loads(company.updated_model_dump())
-            data = {
-                "source_name": str(company.data_source),
-                "company_id": str(company.id),
-                "raw_data": raw_data,
-            }
+        # make the company model json serializable
+        raw_data = json.loads(company.updated_model_dump())
+        data = {
+            "source_name": str(company.data_source),
+            "company_id": str(company.id),
+            "raw_data": raw_data,
+        }
 
-            response = httpx.post(api_endpoint, json=data, headers=headers)
+        response = httpx.post(api_endpoint, json=data, headers=headers)
 
-            if response.status_code == 201:
-                return response.json()
-            elif response.status_code == 404:
-                pass
-            else:
-                raise Exception(
-                    f"API request failed with status code {response.status_code}"
-                )
+        if response.status_code == 201:
+            return response.json()
+        elif response.status_code == 404:
+            pass
+        else:
+            raise Exception(
+                f"API request failed with status code {response.status_code}"
+            )
