@@ -27,7 +27,7 @@ class RedditClient:
             client_secret=reddit_api_key,
             user_agent="Startup_Data/1.0",
         )
-        self.data_source = "Reddit"
+        self.data_source = "reddit"
         self.data_source_url = str(os.getenv("REDDIT_BASE_URL") or "")
         self.results = {}
 

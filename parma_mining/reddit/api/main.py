@@ -1,7 +1,7 @@
 """Main entrypoint for the API routes in of parma-analytics."""
 import json
 
-from fastapi import FastAPI, status
+from fastapi import FastAPI, HTTPException, status
 
 from parma_mining.reddit.api.analytics_client import AnalyticsClient
 from parma_mining.reddit.client import RedditClient
@@ -54,8 +54,10 @@ def get_company_info(companies: CompaniesRequest) -> list[CompanyModel]:
                 all_comp_details.append(org_details)
     # feed the raw data to analytics
     for company in all_comp_details:
-        response = analytics_client.feed_raw_data(company)
-        print("Response:", response)
+        try:
+            analytics_client.feed_raw_data(company)
+        except HTTPException:
+            raise HTTPException("Can't send crawling data to the Analytics.")
     return all_comp_details
 
 
