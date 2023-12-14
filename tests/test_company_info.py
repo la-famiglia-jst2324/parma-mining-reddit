@@ -1,8 +1,10 @@
-import pytest
-from fastapi import HTTPException
-from fastapi.testclient import TestClient
-from starlette import status
 from unittest.mock import MagicMock
+
+import pytest
+from fastapi import HTTPException, status
+from fastapi.testclient import TestClient
+
+from parma_mining.mining_common.const import HTTP_200, HTTP_404
 from parma_mining.reddit.api.main import app
 from parma_mining.reddit.model import CompanyModel
 
@@ -80,7 +82,7 @@ def test_get_company_details(
     # this uses analytics_client.feed_raw_data too we need to mock that
     response = client.post("/companies", json=payload)
     mock_analytics_client.assert_called()
-    assert response.status_code == 200
+    assert response.status_code == HTTP_200
 
 
 def test_get_company_details_bad_request(mocker):
@@ -104,4 +106,4 @@ def test_get_company_details_bad_request(mocker):
     }
 
     response = client.post("/companies", json=payload)
-    assert response.status_code == 404
+    assert response.status_code == HTTP_404

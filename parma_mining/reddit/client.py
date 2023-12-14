@@ -1,20 +1,21 @@
-import praw
-from datetime import datetime
-from dotenv import load_dotenv
 import os
+from datetime import datetime
+
+import praw
+from dotenv import load_dotenv
+
 from parma_mining.reddit.model import (
-    CompanyModel,
-    SubmissionModel,
     CommentModel,
+    CompanyModel,
     DiscoveryModel,
+    SubmissionModel,
 )
 from parma_mining.reddit.normalization_map import RedditNormalizationMap
-from typing import List, Dict, Union
 
 
 class RedditClient:
-    normalization_map: Dict[
-        str, Union[str, List[Dict[str, Union[str, List[Dict[str, Union[str, str]]]]]]]
+    normalization_map: dict[
+        str, str | list[dict[str, str | list[dict[str, str | str]]]]
     ] = {}
 
     def __init__(self):
@@ -43,8 +44,10 @@ class RedditClient:
         submissions = []
         company_info = {
             "id": company_id,
-            "search_key": search_str,  # generally the name of the company, sometimes domain
-            "search_type": search_type,  # "name" or "domain" or another type
+            # generally the name of the company, sometimes domain
+            "search_key": search_str,
+            # "name" or "domain" or another type
+            "search_type": search_type,
             "data_source": self.data_source,
             "url": self.data_source_url,
             "submissions": [],
@@ -99,7 +102,7 @@ class RedditClient:
 
         return CompanyModel.model_validate(company_info)
 
-    def discover_subreddits(self, query: str) -> List[DiscoveryModel]:
+    def discover_subreddits(self, query: str) -> list[DiscoveryModel]:
         results = self.reddit.subreddits.search(query=query, limit=10)
         return [
             DiscoveryModel.model_validate(

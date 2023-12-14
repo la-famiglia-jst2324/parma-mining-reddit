@@ -1,10 +1,11 @@
 """Main entrypoint for the API routes in of parma-analytics."""
-from fastapi import FastAPI, HTTPException, status
-from parma_mining.reddit.client import RedditClient
-from parma_mining.reddit.model import CompanyModel, CompaniesRequest, DiscoveryModel
-from parma_mining.reddit.api.analytics_client import AnalyticsClient
-from typing import List, Dict, Optional
 import json
+
+from fastapi import FastAPI, status
+
+from parma_mining.reddit.api.analytics_client import AnalyticsClient
+from parma_mining.reddit.client import RedditClient
+from parma_mining.reddit.model import CompaniesRequest, CompanyModel, DiscoveryModel
 
 app = FastAPI()
 reddit_client = RedditClient()
@@ -37,10 +38,10 @@ def initialize(source_id: int) -> str:
 
 @app.post(
     "/companies",
-    response_model=List[CompanyModel],
+    response_model=list[CompanyModel],
     status_code=status.HTTP_200_OK,
 )
-def get_company_info(companies: CompaniesRequest) -> List[CompanyModel]:
+def get_company_info(companies: CompaniesRequest) -> list[CompanyModel]:
     """Company details endpoint for the API."""
     all_comp_details = []
     for company_id, search_keys in companies.companies.items():
@@ -60,11 +61,13 @@ def get_company_info(companies: CompaniesRequest) -> List[CompanyModel]:
 
 @app.get(
     "/discover",
-    response_model=List[DiscoveryModel],
+    response_model=list[DiscoveryModel],
     status_code=status.HTTP_200_OK,
 )
-def discover_subreddits(query: str) -> List[DiscoveryModel]:
-    """Discovery endpoint for the API  ( for reddit this endpoint enables searching for
-    subreddits)"""
+def discover_subreddits(query: str) -> list[DiscoveryModel]:
+    """Discovery endpoint for the API.
+
+    (for reddit this endpoint enables searching for subreddits)
+    """
     results = reddit_client.discover_subreddits(query)
     return results
