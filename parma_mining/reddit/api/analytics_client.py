@@ -1,10 +1,13 @@
 # The duty of this file is to make necessary calls to Analytics API
+import json
+import os
+import urllib.parse
+
 import httpx
 from dotenv import load_dotenv
+
+from parma_mining.mining_common.const import HTTP_201, HTTP_404
 from parma_mining.reddit.model import CompanyModel
-import os
-import json
-import urllib.parse
 
 
 class AnalyticsClient:
@@ -21,7 +24,7 @@ class AnalyticsClient:
         }
         response = httpx.post(api_endpoint, json=data, headers=headers)
 
-        if response.status_code == 201:
+        if response.status_code == HTTP_201:
             return response.json().get("id")
         else:
             raise Exception(
@@ -75,9 +78,9 @@ class AnalyticsClient:
 
         response = httpx.post(api_endpoint, json=data, headers=headers)
 
-        if response.status_code == 201:
+        if response.status_code == HTTP_201:
             return response.json()
-        elif response.status_code == 404:
+        elif response.status_code == HTTP_404:
             pass
         else:
             raise Exception(
