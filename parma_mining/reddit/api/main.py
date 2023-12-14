@@ -57,7 +57,7 @@ def get_company_info(companies: CompaniesRequest) -> list[CompanyModel]:
         try:
             analytics_client.feed_raw_data(company)
         except HTTPException:
-            raise Exception("Can't send crawling data to the Analytics.")
+            raise HTTPException("Can't send crawling data to the Analytics.")
     return all_comp_details
 
 
