@@ -1,7 +1,7 @@
 # This class represents our normalization map, will be used at initialization endpoint
 class RedditNormalizationMap:
     map_json = {
-        "Source": "Reddit",
+        "Source": "reddit",
         "Mappings": [
             {
                 "SourceField": "id",
@@ -46,7 +46,7 @@ class RedditNormalizationMap:
                     },
                     {
                         "SourceField": "is_original_content",
-                        "DataType": "boolean",
+                        "DataType": "bool",
                         "MeasurementName": "is submission original content",
                     },
                     {
