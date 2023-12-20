@@ -1,5 +1,12 @@
-# This class represents our normalization map, will be used at initialization endpoint
+"""This class represents our normalization map.
+
+It will be used at initialization endpoint.
+"""
+
+
 class RedditNormalizationMap:
+    """Normalization map for Reddit."""
+
     map_json = {
         "Source": "reddit",
         "Mappings": [
@@ -152,4 +159,5 @@ class RedditNormalizationMap:
     }
 
     def get_normalization_map(self):
+        """Return the normalization map."""
         return self.map_json

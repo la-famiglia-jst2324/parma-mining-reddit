@@ -1,3 +1,4 @@
+"""Reddit client for fetching data from Reddit API."""
 import os
 from datetime import datetime
 
@@ -14,11 +15,14 @@ from parma_mining.reddit.normalization_map import RedditNormalizationMap
 
 
 class RedditClient:
+    """Client class for fetching data from Reddit API."""
+
     normalization_map: dict[
         str, str | list[dict[str, str | list[dict[str, str | str]]]]
     ] = {}
 
     def __init__(self):
+        """Initialize the Reddit client."""
         load_dotenv()
         reddit_api_key = str(os.getenv("REDDIT_API_KEY") or "")
         reddit_client_id = str(os.getenv("REDDIT_CLIENT_ID") or "")
@@ -32,12 +36,14 @@ class RedditClient:
         self.results = {}
 
     def initialize_normalization_map(self) -> dict:
+        """Initialize the normalization map."""
         self.normalization_map = RedditNormalizationMap().get_normalization_map()
         return self.normalization_map
 
     def get_company_details(
         self, search_str: str, company_id: str, search_type: str, subreddit="all"
     ) -> CompanyModel:
+        """Get company details from Reddit API."""
         results = self.reddit.subreddit(subreddit).search(
             query=search_str, sort="relevance", time_filter="all", limit=5
         )
@@ -103,6 +109,7 @@ class RedditClient:
         return CompanyModel.model_validate(company_info)
 
     def discover_subreddits(self, query: str) -> list[DiscoveryModel]:
+        """Discover subreddits from Reddit API."""
         results = self.reddit.subreddits.search(query=query, limit=10)
         return [
             DiscoveryModel.model_validate(

@@ -1,3 +1,4 @@
+"""Pydantic models for Reddit data."""
 import json
 from datetime import datetime
 
@@ -5,7 +6,7 @@ from pydantic import BaseModel
 
 
 class CommentModel(BaseModel):
-    """Model to structure the JSON Data."""
+    """Comment model for Reddit data."""
 
     author: str | None
     text: str | None
@@ -14,7 +15,7 @@ class CommentModel(BaseModel):
 
 
 class SubmissionModel(BaseModel):
-    """Model to structure the JSON Data."""
+    """Submission model for Reddit data."""
 
     author: str | None
     comment_count: int | None
@@ -38,6 +39,8 @@ class SubmissionModel(BaseModel):
 
 
 class CompanyModel(BaseModel):
+    """Company model for Reddit data."""
+
     id: str | None
     search_key: str | None  # generally the name of the company, sometimes domain
     search_type: str | None  # "name" or "domain" or another type
@@ -60,9 +63,13 @@ class CompanyModel(BaseModel):
 
 
 class DiscoveryModel(BaseModel):
+    """Discovery model for Reddit data."""
+
     name: str | None
     url: str | None
 
 
 class CompaniesRequest(BaseModel):
+    """Companies request model for Reddit data."""
+
     companies: dict[str, dict[str, list[str]]]

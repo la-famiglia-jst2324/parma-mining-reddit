@@ -1,4 +1,7 @@
-# The duty of this file is to make necessary calls to Analytics API
+"""This module contains the AnalyticsClient class.
+
+AnalyticsClient class which is used to send data to the analytics service.
+"""
 import json
 import os
 import urllib.parse
@@ -11,6 +14,8 @@ from parma_mining.reddit.model import CompanyModel
 
 
 class AnalyticsClient:
+    """Client class for sending data to the analytics service."""
+
     load_dotenv()
     analytics_base = str(os.getenv("ANALYTICS_BASE_URL") or "")
 
@@ -18,6 +23,7 @@ class AnalyticsClient:
     feed_raw_url = urllib.parse.urljoin(analytics_base, "/feed-raw-data")
 
     def send_post_request(self, data):
+        """Send a POST request to the analytics service."""
         api_endpoint = self.measurement_url
         headers = {
             "Content-Type": "application/json",
@@ -32,6 +38,7 @@ class AnalyticsClient:
             )
 
     def register_measurements(self, mapping, parent_id=None, source_module_id=None):
+        """Register measurements in the analytics service."""
         result = []
 
         for field_mapping in mapping["Mappings"]:
@@ -64,6 +71,7 @@ class AnalyticsClient:
         return result, mapping
 
     def feed_raw_data(self, company: CompanyModel):
+        """Send raw data to the analytics service."""
         api_endpoint = self.feed_raw_url
         headers = {
             "Content-Type": "application/json",
