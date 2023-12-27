@@ -1,9 +1,3 @@
-variable "FIREBASE_ADMINSDK_CERTIFICATE" {
-  description = "value"
-  type        = string
-  sensitive   = true
-}
-
 variable "REDDIT_API_KEY" {
   description = "value"
   type        = string

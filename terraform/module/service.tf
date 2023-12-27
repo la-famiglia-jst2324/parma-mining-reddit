@@ -36,10 +36,6 @@ resource "google_cloud_run_service" "parma_mining_reddit_cloud_run" {
           container_port = 8080
         }
         env {
-          name  = "FIREBASE_ADMINSDK_CERTIFICATE"
-          value = var.FIREBASE_ADMINSDK_CERTIFICATE
-        }
-        env {
           name  = "REDDIT_API_KEY"
           value = var.REDDIT_API_KEY
         }
