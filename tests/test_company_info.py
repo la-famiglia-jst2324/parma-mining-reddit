@@ -1,3 +1,4 @@
+import logging
 from unittest.mock import MagicMock
 
 import pytest
@@ -9,6 +10,8 @@ from parma_mining.reddit.api.main import app
 from parma_mining.reddit.model import CompanyModel
 
 client = TestClient(app)
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
