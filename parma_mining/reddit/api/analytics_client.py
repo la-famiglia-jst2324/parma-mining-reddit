@@ -22,11 +22,12 @@ class AnalyticsClient:
     measurement_url = urllib.parse.urljoin(analytics_base, "/source-measurement")
     feed_raw_url = urllib.parse.urljoin(analytics_base, "/feed-raw-data")
 
-    def send_post_request(self, data):
+    def send_post_request(self, token: str, data):
         """Send a POST request to the analytics service."""
         api_endpoint = self.measurement_url
         headers = {
             "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}",
         }
         response = httpx.post(api_endpoint, json=data, headers=headers)
 
@@ -37,7 +38,9 @@ class AnalyticsClient:
                 f"API request failed with status code {response.status_code}"
             )
 
-    def register_measurements(self, mapping, parent_id=None, source_module_id=None):
+    def register_measurements(
+        self, token: str, mapping, parent_id=None, source_module_id=None
+    ):
         """Register measurements in the analytics service."""
         result = []
 
@@ -52,7 +55,7 @@ class AnalyticsClient:
                 measurement_data["parent_measurement_id"] = parent_id
 
             measurement_data["source_measurement_id"] = self.send_post_request(
-                measurement_data
+                token, measurement_data
             )
 
             # add the source measurement id to mapping
@@ -62,6 +65,7 @@ class AnalyticsClient:
 
             if "NestedMappings" in field_mapping:
                 nested_measurements = self.register_measurements(
+                    token,
                     {"Mappings": field_mapping["NestedMappings"]},
                     parent_id=measurement_data["source_measurement_id"],
                     source_module_id=source_module_id,
@@ -70,11 +74,12 @@ class AnalyticsClient:
             result.append(measurement_data)
         return result, mapping
 
-    def feed_raw_data(self, company: CompanyModel):
+    def feed_raw_data(self, token: str, company: CompanyModel):
         """Send raw data to the analytics service."""
         api_endpoint = self.feed_raw_url
         headers = {
             "Content-Type": "application/json",
+            "Authorization": f"Bearer {token}",
         }
         # make the company model json serializable
         raw_data = json.loads(company.updated_model_dump())
