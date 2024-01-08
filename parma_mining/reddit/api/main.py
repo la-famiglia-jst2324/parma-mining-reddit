@@ -5,11 +5,13 @@ from fastapi import FastAPI, HTTPException, status
 
 from parma_mining.reddit.api.analytics_client import AnalyticsClient
 from parma_mining.reddit.client import RedditClient
-from parma_mining.reddit.model import CompaniesRequest, CompanyModel, DiscoveryModel
+from parma_mining.reddit.model import CompaniesRequest, DiscoveryModel
+from parma_mining.reddit.normalization_map import RedditNormalizationMap
 
 app = FastAPI()
 reddit_client = RedditClient()
 analytics_client = AnalyticsClient()
+normalization = RedditNormalizationMap()
 
 
 @app.get("/", status_code=200)
@@ -23,7 +25,7 @@ def initialize(source_id: int) -> str:
     """Initialization endpoint for the API."""
     # init frequency
     time = "weekly"
-    normalization_map = reddit_client.initialize_normalization_map()
+    normalization_map = normalization.get_normalization_map()
     # register the measurements to analytics
     normalization_map = analytics_client.register_measurements(
         normalization_map, source_module_id=source_id
@@ -38,18 +40,24 @@ def initialize(source_id: int) -> str:
 
 @app.post(
     "/companies",
-    response_model=list[CompanyModel],
     status_code=status.HTTP_200_OK,
 )
-def get_company_info(companies: CompaniesRequest) -> list[CompanyModel]:
+def get_organization_details(companies: CompaniesRequest):
     """Company details endpoint for the API."""
+    # time_filter – Can be one of: "all", "day", "hour", "month", "week", or "year".
+    time_filter = "all"
+    subreddit = "all"
+    options = [subreddit, time_filter]
     all_comp_details = []
     for company_id, search_keys in companies.companies.items():
         for key in search_keys:
             search_list = companies.companies[company_id][key]
             for search_string in search_list:
                 org_details = reddit_client.get_company_details(
-                    search_str=search_string, company_id=company_id, search_type=key
+                    search_str=search_string,
+                    company_id=company_id,
+                    search_type=key,
+                    options=options,
                 )
                 all_comp_details.append(org_details)
     # feed the raw data to analytics
@@ -58,7 +66,9 @@ def get_company_info(companies: CompaniesRequest) -> list[CompanyModel]:
             analytics_client.feed_raw_data(company)
         except HTTPException:
             raise HTTPException("Can't send crawling data to the Analytics.")
-    return all_comp_details
+
+    analytics_client.finish_crawling("success")
+    return "done"
 
 
 @app.get(

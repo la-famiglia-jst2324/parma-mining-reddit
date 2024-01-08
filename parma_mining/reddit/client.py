@@ -11,15 +11,10 @@ from parma_mining.reddit.model import (
     DiscoveryModel,
     SubmissionModel,
 )
-from parma_mining.reddit.normalization_map import RedditNormalizationMap
 
 
 class RedditClient:
     """Client class for fetching data from Reddit API."""
-
-    normalization_map: dict[
-        str, str | list[dict[str, str | list[dict[str, str | str]]]]
-    ] = {}
 
     def __init__(self):
         """Initialize the Reddit client."""
@@ -35,17 +30,15 @@ class RedditClient:
         self.data_source_url = str(os.getenv("REDDIT_BASE_URL") or "")
         self.results = {}
 
-    def initialize_normalization_map(self) -> dict:
-        """Initialize the normalization map."""
-        self.normalization_map = RedditNormalizationMap().get_normalization_map()
-        return self.normalization_map
-
     def get_company_details(
-        self, search_str: str, company_id: str, search_type: str, subreddit="all"
+        self, search_str: str, company_id: str, search_type: str, options: list[str]
     ) -> CompanyModel:
         """Get company details from Reddit API."""
+        subreddit = options[0]
+        time_filter = options[1]
+        # time_filter – Can be one of: "all", "day", "hour", "month", "week", or "year"
         results = self.reddit.subreddit(subreddit).search(
-            query=search_str, sort="relevance", time_filter="all", limit=5
+            query=search_str, sort="relevance", time_filter=time_filter, limit=5
         )
         submissions = []
         company_info = {

@@ -21,6 +21,7 @@ class AnalyticsClient:
 
     measurement_url = urllib.parse.urljoin(analytics_base, "/source-measurement")
     feed_raw_url = urllib.parse.urljoin(analytics_base, "/feed-raw-data")
+    finish_crawling_url = urllib.parse.urljoin(analytics_base, "/crawling-finished")
 
     def send_post_request(self, data):
         """Send a POST request to the analytics service."""
@@ -32,6 +33,22 @@ class AnalyticsClient:
 
         if response.status_code == HTTP_201:
             return response.json().get("id")
+        else:
+            raise Exception(
+                f"API request failed with status code {response.status_code}"
+            )
+
+    def finish_crawling(self, message: str):
+        """Send a POST request to the analytics service."""
+        api_endpoint = self.finish_crawling_url
+        headers = {
+            "Content-Type": "application/json",
+        }
+        data = {"incoming_message": message}
+        response = httpx.post(api_endpoint, json=data, headers=headers)
+
+        if response.status_code == HTTP_201:
+            return response.json()
         else:
             raise Exception(
                 f"API request failed with status code {response.status_code}"

@@ -89,7 +89,7 @@ def test_get_company_details_bad_request(mocker):
     mocker.patch(
         "parma_mining.reddit.api.main.RedditClient.get_company_details",
         side_effect=HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Organization not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="Company not found"
         ),
     )
 
@@ -100,7 +100,6 @@ def test_get_company_details_bad_request(mocker):
             },
             "company2": {
                 "name": ["company2_name"],
-                "domain": ["company2_domain"],
             },
         }
     }
