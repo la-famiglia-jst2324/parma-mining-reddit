@@ -1,11 +1,25 @@
 """Main entrypoint for the API routes in of parma-analytics."""
 import json
+import logging
+import os
 
 from fastapi import FastAPI, HTTPException, status
 
 from parma_mining.reddit.api.analytics_client import AnalyticsClient
 from parma_mining.reddit.client import RedditClient
 from parma_mining.reddit.model import CompaniesRequest, CompanyModel, DiscoveryModel
+
+env = os.getenv("env", "local")
+
+if env == "prod":
+    logging.basicConfig(level=logging.INFO)
+elif env in ["staging", "local"]:
+    logging.basicConfig(level=logging.DEBUG)
+else:
+    logging.warning(f"Unknown environment '{env}'. Defaulting to INFO level.")
+    logging.basicConfig(level=logging.INFO)
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI()
 reddit_client = RedditClient()
@@ -15,6 +29,7 @@ analytics_client = AnalyticsClient()
 @app.get("/", status_code=200)
 def root():
     """Root endpoint for the API."""
+    logger.debug("Root endpoint called")
     return {"welcome": "at parma-mining-reddit"}
 
 
@@ -56,8 +71,13 @@ def get_company_info(companies: CompaniesRequest) -> list[CompanyModel]:
     for company in all_comp_details:
         try:
             analytics_client.feed_raw_data(company)
-        except HTTPException:
-            raise HTTPException("Can't send crawling data to the Analytics.")
+        except HTTPException as e:
+            logger.error(
+                f"Can't send crawling data for {company} to the Analytics: {e}"
+            )
+            raise HTTPException(
+                f"Can't send crawling data for {company} to the Analytics: {e}"
+            )
     return all_comp_details
 
 
