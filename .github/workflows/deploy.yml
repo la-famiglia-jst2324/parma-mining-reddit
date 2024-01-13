@@ -21,6 +21,9 @@ env:
   TF_VAR_REDDIT_CLIENT_ID: ${{ vars.REDDIT_CLIENT_ID }}
   TF_VAR_REDDIT_DATA_SOURCE: ${{ vars.REDDIT_DATA_SOURCE }}
 
+  # Analytics and Sourcing Auth Flow
+  TF_VAR_PARMA_SHARED_SECRET_KEY: ${{ github.event_name == 'release' && secrets.PROD_PARMA_SHARED_SECRET_KEY || secrets.STAGING_PARMA_SHARED_SECRET_KEY}}
+
 jobs:
   deploy:
     name: Deploy - ${{ matrix.DEPLOYMENT_ENV }}

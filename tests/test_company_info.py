@@ -6,10 +6,24 @@ from fastapi import HTTPException, status
 from fastapi.testclient import TestClient
 
 from parma_mining.mining_common.const import HTTP_200, HTTP_404
+from parma_mining.reddit.api.dependencies.auth import authenticate
 from parma_mining.reddit.api.main import app
 from parma_mining.reddit.model import CompanyModel
+from tests.dependencies.mock_auth import mock_authenticate
 
-client = TestClient(app)
+
+@pytest.fixture
+def client():
+    assert app
+    app.dependency_overrides.update(
+        {
+            authenticate: mock_authenticate,
+        }
+    )
+    return TestClient(app)
+
+
+logger = logging.getLogger(__name__)
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +83,7 @@ def mock_reddit_client(mocker) -> MagicMock:
 
 
 def test_get_company_details(
-    mock_reddit_client: MagicMock, mock_analytics_client: MagicMock
+    client: TestClient, mock_reddit_client: MagicMock, mock_analytics_client: MagicMock
 ):
     payload = {
         "companies": {
@@ -88,7 +102,7 @@ def test_get_company_details(
     assert response.status_code == HTTP_200
 
 
-def test_get_company_details_bad_request(mocker):
+def test_get_company_details_bad_request(client: TestClient, mocker):
     mocker.patch(
         "parma_mining.reddit.api.main.RedditClient.get_company_details",
         side_effect=HTTPException(
