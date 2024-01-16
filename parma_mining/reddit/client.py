@@ -1,4 +1,5 @@
 """Reddit client for fetching data from Reddit API."""
+import logging
 import os
 from datetime import datetime
 
@@ -11,6 +12,8 @@ from parma_mining.reddit.model import (
     DiscoveryModel,
     SubmissionModel,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class RedditClient:
