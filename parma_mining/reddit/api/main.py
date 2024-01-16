@@ -10,7 +10,7 @@ from parma_mining.reddit.api.dependencies.auth import authenticate
 from parma_mining.reddit.client import RedditClient
 from parma_mining.reddit.model import CompaniesRequest, CompanyModel, DiscoveryModel
 
-env = os.getenv("env", "local")
+env = os.getenv("DEPLOYMENT_ENV", "local")
 
 if env == "prod":
     logging.basicConfig(level=logging.INFO)
