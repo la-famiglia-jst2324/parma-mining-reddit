@@ -59,6 +59,10 @@ resource "google_cloud_run_service" "parma_mining_reddit_cloud_run" {
           name  = "PARMA_SHARED_SECRET_KEY"
           value = var.PARMA_SHARED_SECRET_KEY
         }
+        env {
+          name  = "DEPLOYMENT_ENV"
+          value = var.env
+        }
       }
     }
   }
