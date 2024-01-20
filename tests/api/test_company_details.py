@@ -25,13 +25,14 @@ def client():
 
 logger = logging.getLogger(__name__)
 
-logger = logging.getLogger(__name__)
-
 
 @pytest.fixture
 def mock_analytics_client(mocker) -> MagicMock:
     """Mocking the AnalyticsClient's method to avoid actual API calls during testing."""
     mock = mocker.patch("parma_mining.reddit.api.main.AnalyticsClient.feed_raw_data")
+    mock = mocker.patch(
+        "parma_mining.reddit.api.main.AnalyticsClient.crawling_finished"
+    )
     # No return value needed, but you can add side effects or exceptions if necessary
     return mock
 
@@ -86,6 +87,7 @@ def test_get_company_details(
     client: TestClient, mock_reddit_client: MagicMock, mock_analytics_client: MagicMock
 ):
     payload = {
+        "task_id": 123,
         "companies": {
             "company1": {
                 "name": ["company1_name"],
@@ -94,10 +96,10 @@ def test_get_company_details(
                 "name": ["company2_name"],
                 "domain": ["company2_domain"],
             },
-        }
+        },
     }
-    # this uses analytics_client.feed_raw_data too we need to mock that
-    response = client.post("/companies", json=payload)
+    headers = {"Authorization": "Bearer test"}
+    response = client.post("/companies", json=payload, headers=headers)
     mock_analytics_client.assert_called()
     assert response.status_code == HTTP_200
 
@@ -111,6 +113,7 @@ def test_get_company_details_bad_request(client: TestClient, mocker):
     )
 
     payload = {
+        "task_id": 123,
         "companies": {
             "company1": {
                 "name": ["company1_name"],
@@ -118,8 +121,9 @@ def test_get_company_details_bad_request(client: TestClient, mocker):
             "company2": {
                 "name": ["company2_name"],
             },
-        }
+        },
     }
 
-    response = client.post("/companies", json=payload)
+    headers = {"Authorization": "Bearer test"}
+    response = client.post("/companies", json=payload, headers=headers)
     assert response.status_code == HTTP_404

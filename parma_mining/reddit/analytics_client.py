@@ -3,14 +3,17 @@
 AnalyticsClient class which is used to send data to the analytics service.
 """
 import json
+import logging
 import os
 import urllib.parse
 
 import httpx
 from dotenv import load_dotenv
 
-from parma_mining.mining_common.const import HTTP_201, HTTP_404
-from parma_mining.reddit.model import CompanyModel
+from parma_mining.mining_common.const import HTTP_201
+from parma_mining.reddit.model import ResponseModel
+
+logger = logging.getLogger(__name__)
 
 
 class AnalyticsClient:
@@ -21,11 +24,10 @@ class AnalyticsClient:
 
     measurement_url = urllib.parse.urljoin(analytics_base, "/source-measurement")
     feed_raw_url = urllib.parse.urljoin(analytics_base, "/feed-raw-data")
-    finish_crawling_url = urllib.parse.urljoin(analytics_base, "/crawling-finished")
+    crawling_finished_url = urllib.parse.urljoin(analytics_base, "/crawling-finished")
 
-    def send_post_request(self, token: str, data):
+    def send_post_request(self, token: str, api_endpoint, data):
         """Send a POST request to the analytics service."""
-        api_endpoint = self.measurement_url
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {token}",
@@ -55,9 +57,16 @@ class AnalyticsClient:
             if parent_id is not None:
                 measurement_data["parent_measurement_id"] = parent_id
 
-            measurement_data["source_measurement_id"] = self.send_post_request(
-                token, measurement_data
+            else:
+                logger.debug(
+                    f"No parent id provided for "
+                    f"measurement {measurement_data['measurement_name']}"
+                )
+
+            response = self.send_post_request(
+                token, self.measurement_url, measurement_data
             )
+            measurement_data["source_measurement_id"] = response.get("id")
 
             # add the source measurement id to mapping
             field_mapping["source_measurement_id"] = measurement_data[
@@ -75,28 +84,18 @@ class AnalyticsClient:
             result.append(measurement_data)
         return result, mapping
 
-    def feed_raw_data(self, token: str, company: CompanyModel):
-        """Send raw data to the analytics service."""
-        api_endpoint = self.feed_raw_url
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {token}",
-        }
-        # make the company model json serializable
-        raw_data = json.loads(company.updated_model_dump())
+    def feed_raw_data(self, token: str, input_data: ResponseModel):
+        """Feed the raw data to the analytics service."""
+        company_json = json.loads(input_data.raw_data.updated_model_dump())
+
         data = {
-            "source_name": str(company.data_source),
-            "company_id": str(company.id),
-            "raw_data": raw_data,
+            "source_name": input_data.source_name,
+            "company_id": input_data.company_id,
+            "raw_data": company_json,
         }
 
-        response = httpx.post(api_endpoint, json=data, headers=headers)
+        return self.send_post_request(token, self.feed_raw_url, data)
 
-        if response.status_code == HTTP_201:
-            return response.json()
-        elif response.status_code == HTTP_404:
-            pass
-        else:
-            raise Exception(
-                f"API request failed with status code {response.status_code}"
-            )
+    def crawling_finished(self, token, data):
+        """Notify crawling is finished to the analytics."""
+        return self.send_post_request(token, self.crawling_finished_url, data)

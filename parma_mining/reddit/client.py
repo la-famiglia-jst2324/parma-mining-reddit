@@ -6,10 +6,11 @@ from datetime import datetime
 import praw
 from dotenv import load_dotenv
 
+from parma_mining.mining_common.exceptions import ClientError
 from parma_mining.reddit.model import (
     CommentModel,
     CompanyModel,
-    DiscoveryModel,
+    DiscoveryResponse,
     SubmissionModel,
 )
 
@@ -34,23 +35,16 @@ class RedditClient:
         self.results = {}
 
     def get_company_details(
-        self, search_str: str, company_id: str, search_type: str, options: list[str]
+        self, search_str: str, subreddit: str, time_filter: str
     ) -> CompanyModel:
         """Get company details from Reddit API."""
-        subreddit = options[0]
-        time_filter = options[1]
         # time_filter – Can be one of: "all", "day", "hour", "month", "week", or "year"
         results = self.reddit.subreddit(subreddit).search(
             query=search_str, sort="relevance", time_filter=time_filter, limit=5
         )
         submissions = []
         company_info = {
-            "id": company_id,
-            # generally the name of the company, sometimes domain
-            "search_key": search_str,
-            # "name" or "domain" or another type
-            "search_type": search_type,
-            "data_source": self.data_source,
+            "name": search_str,
             "url": self.data_source_url,
             "submissions": [],
         }
@@ -104,12 +98,16 @@ class RedditClient:
 
         return CompanyModel.model_validate(company_info)
 
-    def discover_subreddits(self, query: str) -> list[DiscoveryModel]:
+    def discover_subreddits(self, query: str) -> DiscoveryResponse:
         """Discover subreddits from Reddit API."""
-        results = self.reddit.subreddits.search(query=query, limit=10)
-        return [
-            DiscoveryModel.model_validate(
-                {"name": subreddit.display_name, "url": subreddit.url}
-            )
-            for subreddit in results
-        ]
+        try:
+            search_results = self.reddit.subreddits.search(query=query, limit=10)
+            subreddits = []
+            for subreddit in search_results:
+                subreddits.append(subreddit.display_name)
+            return DiscoveryResponse.model_validate({"subreddits": subreddits})
+
+        except Exception as e:
+            msg = f"Error searching organizations for {query}: {e}"
+            logger.error(msg)
+            raise ClientError()
