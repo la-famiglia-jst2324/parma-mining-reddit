@@ -38,23 +38,31 @@ class SubmissionModel(BaseModel):
     url: str | None
 
 
+class SearchModel(BaseModel):
+    """Search model for Reddit data."""
+
+    subreddit: str | None
+    submissions: list[SubmissionModel] | None
+
+
 class CompanyModel(BaseModel):
     """Company model for Reddit data."""
 
-    url: str | None
-    submissions: list[SubmissionModel] | None
+    name: str | None
+    searches: list[SearchModel] | None
 
     def updated_model_dump(self) -> str:
         """Dump the CompanyModel instance to a JSON string."""
         # Convert datetime objects to string representation
         json_serializable_dict = self.model_dump()
         subs = []
-        if self.submissions:
-            for sub in self.submissions:
-                if sub:
-                    subs.append(sub.model_dump())
-        json_serializable_dict["submissions"] = subs
-
+        if self.searches:
+            for search in self.searches:
+                if search.submissions:
+                    for sub in search.submissions:
+                        if sub:
+                            subs.append(sub.model_dump())
+                json_serializable_dict["submissions"] = subs
         return json.dumps(json_serializable_dict, default=str)
 
 
@@ -84,6 +92,7 @@ class DiscoveryResponse(BaseModel):
     """Define the output model for the discovery endpoint."""
 
     subreddits: list[str] = []
+    name: list[str] = []
 
 
 class FinalDiscoveryResponse(BaseModel):

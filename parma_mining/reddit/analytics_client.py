@@ -10,7 +10,8 @@ import urllib.parse
 import httpx
 from dotenv import load_dotenv
 
-from parma_mining.mining_common.const import HTTP_201
+from parma_mining.mining_common.const import HTTP_200, HTTP_201
+from parma_mining.mining_common.exceptions import AnalyticsError
 from parma_mining.reddit.model import ResponseModel
 
 logger = logging.getLogger(__name__)
@@ -34,11 +35,16 @@ class AnalyticsClient:
         }
         response = httpx.post(api_endpoint, json=data, headers=headers)
 
-        if response.status_code == HTTP_201:
-            return response.json().get("id")
+        if response.status_code in [HTTP_200, HTTP_201]:
+            return response.json()
         else:
-            raise Exception(
-                f"API request failed with status code {response.status_code}"
+            logger.error(
+                f"API request failed with status code {response.status_code},"
+                f"response: {response.text}"
+            )
+            raise AnalyticsError(
+                f"API request failed with status code {response.status_code},"
+                f"response: {response.text}"
             )
 
     def register_measurements(

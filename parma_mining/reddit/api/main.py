@@ -50,6 +50,18 @@ def root():
     return {"welcome": "at parma-mining-reddit"}
 
 
+@app.get("/dummy-auth", status_code=status.HTTP_200_OK)
+def dummy_auth(token: str = Depends(authenticate)):
+    """Dummy endpoint.
+
+    This endpoint is used to demonstrate the usage of authenticate function. This
+    function ensures that the incoming request comes from the analytics. token variable
+    can be used to make requests to analytics.
+    """
+    logger.debug("Dummy endpoint called")
+    return {"welcome": "at parma-mining-crunchbase"}
+
+
 @app.get("/initialize", status_code=200)
 def initialize(source_id: int, token: str = Depends(authenticate)) -> str:
     """Initialization endpoint for the API."""
@@ -75,14 +87,20 @@ def initialize(source_id: int, token: str = Depends(authenticate)) -> str:
 def get_company_details(body: CompaniesRequest, token: str = Depends(authenticate)):
     """Endpoint to get detailed information about a dict of company."""
     errors: dict[str, ErrorInfoModel] = {}
+    subreddits = ["all"]
     for company_id, company_data in body.companies.items():
         for data_type, handles in company_data.items():
+            if "subreddits" in company_data:
+                if len(company_data["subreddits"]) > 0:
+                    subreddits = company_data["subreddits"]
             for handle in handles:
+                print(data_type)
                 if data_type == "name":
                     try:
                         comp_details = reddit_client.get_company_details(
-                            search_str=handle, subreddit="all", time_filter="all"
+                            search_str=handle, subreddit=subreddits, time_filter="all"
                         )
+                        print(comp_details.updated_model_dump())
                     except CrawlingError as e:
                         logger.error(
                             f"Can't fetch company details from GitHub. Error: {e}"
@@ -131,13 +149,13 @@ def discover_subreddits(
         msg = "Request body cannot be empty for discovery"
         logger.error(msg)
         raise ClientInvalidBodyError(msg)
-
+    subreddits_length = 2
     response_data = {}
     for company in request:
         logger.debug(
             f"Discovering with name: {company.name} for company_id {company.company_id}"
         )
-        response = reddit_client.discover_subreddits(company.name)
+        response = reddit_client.discover_subreddits(company.name, subreddits_length)
         response_data[company.company_id] = response
 
     current_date = datetime.now()
