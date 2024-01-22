@@ -94,13 +94,11 @@ def get_company_details(body: CompaniesRequest, token: str = Depends(authenticat
                 if len(company_data["subreddits"]) > 0:
                     subreddits = company_data["subreddits"]
             for handle in handles:
-                print(data_type)
                 if data_type == "name":
                     try:
                         comp_details = reddit_client.get_company_details(
                             search_str=handle, subreddit=subreddits, time_filter="all"
                         )
-                        print(comp_details.updated_model_dump())
                     except CrawlingError as e:
                         logger.error(
                             f"Can't fetch company details from GitHub. Error: {e}"
