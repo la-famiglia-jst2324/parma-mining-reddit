@@ -38,38 +38,79 @@ class SubmissionModel(BaseModel):
     url: str | None
 
 
+class SearchModel(BaseModel):
+    """Search model for Reddit data."""
+
+    subreddit: str | None
+    submissions: list[SubmissionModel] | None
+
+
 class CompanyModel(BaseModel):
     """Company model for Reddit data."""
 
-    id: str | None
-    search_key: str | None  # generally the name of the company, sometimes domain
-    search_type: str | None  # "name" or "domain" or another type
-    data_source: str | None
-    url: str | None
-    submissions: list[SubmissionModel] | None
+    name: str | None
+    searches: list[SearchModel] | None
 
     def updated_model_dump(self) -> str:
         """Dump the CompanyModel instance to a JSON string."""
         # Convert datetime objects to string representation
         json_serializable_dict = self.model_dump()
         subs = []
-        if self.submissions:
-            for sub in self.submissions:
-                if sub:
-                    subs.append(sub.model_dump())
-        json_serializable_dict["submissions"] = subs
-
+        if self.searches:
+            for search in self.searches:
+                if search.submissions:
+                    for sub in search.submissions:
+                        if sub:
+                            subs.append(sub.model_dump())
+                json_serializable_dict["submissions"] = subs
         return json.dumps(json_serializable_dict, default=str)
-
-
-class DiscoveryModel(BaseModel):
-    """Discovery model for Reddit data."""
-
-    name: str | None
-    url: str | None
 
 
 class CompaniesRequest(BaseModel):
     """Companies request model for Reddit data."""
 
+    task_id: int
     companies: dict[str, dict[str, list[str]]]
+
+
+class ResponseModel(BaseModel):
+    """Response model for Reddit  data."""
+
+    source_name: str
+    company_id: str
+    raw_data: CompanyModel
+
+
+class DiscoveryRequest(BaseModel):
+    """Request model for the discovery endpoint."""
+
+    company_id: str
+    name: str
+
+
+class DiscoveryResponse(BaseModel):
+    """Define the output model for the discovery endpoint."""
+
+    subreddits: list[str] = []
+    name: list[str] = []
+
+
+class FinalDiscoveryResponse(BaseModel):
+    """Define the final discovery response model."""
+
+    identifiers: dict[str, DiscoveryResponse]
+    validity: datetime
+
+
+class ErrorInfoModel(BaseModel):
+    """Error info for the crawling_finished endpoint."""
+
+    error_type: str
+    error_description: str | None
+
+
+class CrawlingFinishedInputModel(BaseModel):
+    """Internal base model for the crawling_finished endpoints."""
+
+    task_id: int
+    errors: dict[str, ErrorInfoModel] | None = None

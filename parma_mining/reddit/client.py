@@ -6,23 +6,20 @@ from datetime import datetime
 import praw
 from dotenv import load_dotenv
 
+from parma_mining.mining_common.exceptions import ClientError, CrawlingError
 from parma_mining.reddit.model import (
     CommentModel,
     CompanyModel,
-    DiscoveryModel,
+    DiscoveryResponse,
+    SearchModel,
     SubmissionModel,
 )
-from parma_mining.reddit.normalization_map import RedditNormalizationMap
 
 logger = logging.getLogger(__name__)
 
 
 class RedditClient:
     """Client class for fetching data from Reddit API."""
-
-    normalization_map: dict[
-        str, str | list[dict[str, str | list[dict[str, str | str]]]]
-    ] = {}
 
     def __init__(self):
         """Initialize the Reddit client."""
@@ -38,85 +35,104 @@ class RedditClient:
         self.data_source_url = str(os.getenv("REDDIT_BASE_URL") or "")
         self.results = {}
 
-    def initialize_normalization_map(self) -> dict:
-        """Initialize the normalization map."""
-        self.normalization_map = RedditNormalizationMap().get_normalization_map()
-        return self.normalization_map
-
     def get_company_details(
-        self, search_str: str, company_id: str, search_type: str, subreddit="all"
+        self, search_str: str, subreddit: list[str], time_filter: str
     ) -> CompanyModel:
         """Get company details from Reddit API."""
-        results = self.reddit.subreddit(subreddit).search(
-            query=search_str, sort="relevance", time_filter="all", limit=5
-        )
-        submissions = []
-        company_info = {
-            "id": company_id,
-            # generally the name of the company, sometimes domain
-            "search_key": search_str,
-            # "name" or "domain" or another type
-            "search_type": search_type,
-            "data_source": self.data_source,
-            "url": self.data_source_url,
-            "submissions": [],
-        }
-        for submission in results:
-            # collect comments
-            submission.comments.replace_more(limit=2)
-            all_comments = submission.comments.list()
-            # get the comments and store them in a list
-            comments = []
-            for comment in all_comments:
-                comment_details = CommentModel.model_validate(
-                    {
-                        "author": comment.author.name if comment.author else "Unknown",
-                        "text": comment.body,
-                        "upvotes": comment.score,
-                        "downvotes": comment.downs,
-                    }
+        # time_filter – Can be one of: "all", "day", "hour", "month", "week", or "year"
+        try:
+            searches = []
+            company_info = {
+                "name": search_str,
+                "searches": [],
+            }
+            for sub in subreddit:
+                results = self.reddit.subreddit(sub).search(
+                    query=search_str, sort="relevance", time_filter=time_filter, limit=5
                 )
-                comments.append(comment_details)
-            # model for submission
-            submission_details = SubmissionModel.model_validate(
-                {
-                    "author": submission.author.name
-                    if submission.author
-                    else "Unknown",
-                    "comment_count": len(all_comments),
-                    "comments": comments,
-                    "created_at": datetime.utcfromtimestamp(
-                        submission.created_utc
-                    ).strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-                    "id": submission.id,
-                    "is_original_content": submission.is_original_content,
-                    "is_self": submission.is_self,
-                    "is_video": submission.is_video,
-                    "over18": submission.over_18,
-                    "permalink": submission.permalink,
-                    "scraped_at": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
-                    "score": submission.score,
-                    "subreddit_name": submission.subreddit.display_name,
-                    "subreddit_description": submission.subreddit.public_description,
-                    "subreddit_subscribers": submission.subreddit.subscribers,
-                    "title": submission.title,
-                    "text": submission.selftext,
-                    "upvote_ratio": submission.upvote_ratio,
-                    "url": submission.url,
+                submissions = []
+                search_info = {
+                    "subreddit": sub,
+                    "submissions": [],
                 }
-            )
-            # typecast to list
-            submissions.append(submission_details)
-        company_info["submissions"] = submissions
+                for submission in results:
+                    # collect comments
+                    submission.comments.replace_more(limit=2)
+                    all_comments = submission.comments.list()
+                    # get the comments and store them in a list
+                    comments = []
+                    for comment in all_comments:
+                        comment_details = CommentModel.model_validate(
+                            {
+                                "author": comment.author.name
+                                if comment.author
+                                else "Unknown",
+                                "text": comment.body,
+                                "upvotes": comment.score,
+                                "downvotes": comment.downs,
+                            }
+                        )
+                        comments.append(comment_details)
+                    # model for submission
+                    submission_details = SubmissionModel.model_validate(
+                        {
+                            "author": submission.author.name
+                            if submission.author
+                            else "Unknown",
+                            "comment_count": len(all_comments),
+                            "comments": comments,
+                            "created_at": datetime.utcfromtimestamp(
+                                submission.created_utc
+                            ).strftime("%Y-%m-%dT%H:%M:%S.%fZ"),
+                            "id": submission.id,
+                            "is_original_content": submission.is_original_content,
+                            "is_self": submission.is_self,
+                            "is_video": submission.is_video,
+                            "over18": submission.over_18,
+                            "permalink": submission.permalink,
+                            "scraped_at": datetime.utcnow().strftime(
+                                "%Y-%m-%dT%H:%M:%S.%fZ"
+                            ),
+                            "score": submission.score,
+                            "subreddit_name": submission.subreddit.display_name,
+                            "subreddit_description": (
+                                submission.subreddit.public_description
+                            ),
+                            "subreddit_subscribers": submission.subreddit.subscribers,
+                            "title": submission.title,
+                            "text": submission.selftext,
+                            "upvote_ratio": submission.upvote_ratio,
+                            "url": submission.url,
+                        }
+                    )
+                    # typecast to list
+                    submissions.append(submission_details)
+                search_info["submissions"] = submissions
+                searches.append(SearchModel.model_validate(search_info))
 
-        return CompanyModel.model_validate(company_info)
+            company_info["searches"] = searches
+            return CompanyModel.model_validate(company_info)
 
-    def discover_subreddits(self, query: str) -> list[DiscoveryModel]:
+        except Exception as e:
+            msg = f"Error fetching organization details for {search_str}: {e}"
+            logger.error(msg)
+            raise CrawlingError(msg)
+
+    def discover_subreddits(self, query: str, length: int) -> DiscoveryResponse:
         """Discover subreddits from Reddit API."""
-        results = self.reddit.subreddits.search(query=query, limit=10)
-        return [
-            DiscoveryModel.model_validate(
-                {"name": subreddit.display_name, "url": subreddit.url}
+        try:
+            search_results = self.reddit.subreddits.search(query=query, limit=10)
+            subreddits = []
+            for subreddit in search_results:
+                # at most x subreddits
+                subreddits.append(subreddit.display_name)
+                if len(subreddits) == length:
+                    break
+            return DiscoveryResponse.model_validate(
+                {"subreddits": subreddits, "name": [query]}
             )
-            for subreddit in results
-        ]
+
+        except Exception as e:
+            msg = f"Error searching organizations for {query}: {e}"
+            logger.error(msg)
+            raise ClientError()
