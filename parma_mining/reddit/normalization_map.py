@@ -8,6 +8,7 @@ class RedditNormalizationMap:
     """Normalization map for Reddit."""
 
     map_json = {
+        "SourceName": "reddit",
         "Mappings": [
             {
                 "SourceField": "name",
@@ -111,7 +112,7 @@ class RedditNormalizationMap:
                             },
                             {
                                 "SourceField": "text",
-                                "DataType": "text",
+                                "DataType": "paragraph",
                                 "MeasurementName": "text of submission",
                             },
                             {
@@ -136,7 +137,7 @@ class RedditNormalizationMap:
                                     },
                                     {
                                         "SourceField": "text",
-                                        "DataType": "text",
+                                        "DataType": "paragraph",
                                         "MeasurementName": "text of comment",
                                     },
                                     {
@@ -155,7 +156,7 @@ class RedditNormalizationMap:
                     },
                 ],
             },
-        ]
+        ],
     }
 
     def get_normalization_map(self):
