@@ -44,8 +44,3 @@ variable "REDDIT_CLIENT_ID" {
   description = "value"
   type        = string
 }
-
-variable "REDDIT_DATA_SOURCE" {
-  description = "value"
-  type        = string
-}
