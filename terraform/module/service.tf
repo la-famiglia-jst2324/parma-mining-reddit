@@ -57,10 +57,6 @@ resource "google_cloud_run_service" "parma_mining_reddit_cloud_run" {
           value = var.REDDIT_CLIENT_ID
         }
         env {
-          name  = "REDDIT_DATA_SOURCE"
-          value = var.REDDIT_DATA_SOURCE
-        }
-        env {
           name  = "ANALYTICS_BASE_URL"
           value = var.ANALYTICS_BASE_URL
         }
