@@ -34,8 +34,6 @@ class RedditClient:
         self.data_source = "reddit"
         self.data_source_url = str(os.getenv("REDDIT_BASE_URL") or "")
         self.results = {}
-        logger.info(f"Reddit API Key:{reddit_api_key}")
-        logger.info(f"Reddit Client ID:{reddit_client_id}")
 
     def get_company_details(
         self, search_str: str, subreddit: list[str], time_filter: str
