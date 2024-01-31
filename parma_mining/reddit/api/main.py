@@ -101,7 +101,7 @@ def get_company_details(body: CompaniesRequest, token: str = Depends(authenticat
                         )
                     except CrawlingError as e:
                         logger.error(
-                            f"Can't fetch company details from GitHub. Error: {e}"
+                            f"Can't fetch company details from Reddit. Error: {e}"
                         )
                         collect_errors(company_id, errors, e)
                         continue

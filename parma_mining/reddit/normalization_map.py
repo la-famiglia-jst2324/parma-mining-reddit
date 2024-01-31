@@ -8,7 +8,7 @@ class RedditNormalizationMap:
     """Normalization map for Reddit."""
 
     map_json = {
-        "SourceName": "reddit",
+        "Source": "reddit",
         "Mappings": [
             {
                 "SourceField": "name",
@@ -81,11 +81,6 @@ class RedditNormalizationMap:
                                 "MeasurementName": "repository homepage url",
                             },
                             {
-                                "SourceField": "scraped_at",
-                                "DataType": "date",
-                                "MeasurementName": "timestamp of scraping",
-                            },
-                            {
                                 "SourceField": "score",
                                 "DataType": "int",
                                 "MeasurementName": "like count of submission",
@@ -148,7 +143,7 @@ class RedditNormalizationMap:
                                     {
                                         "SourceField": "downvotes",
                                         "DataType": "int",
-                                        "MeasurementName": "downvote coun of comment",
+                                        "MeasurementName": "downvote count of comment",
                                     },
                                 ],
                             },
