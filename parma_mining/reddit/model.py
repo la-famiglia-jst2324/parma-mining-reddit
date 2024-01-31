@@ -27,7 +27,6 @@ class SubmissionModel(BaseModel):
     is_video: bool | None
     over18: bool | None
     permalink: str | None
-    scraped_at: datetime | None
     score: int | None
     subreddit_name: str | None
     subreddit_description: str | None

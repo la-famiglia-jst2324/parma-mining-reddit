@@ -90,9 +90,6 @@ class RedditClient:
                             "is_video": submission.is_video,
                             "over18": submission.over_18,
                             "permalink": submission.permalink,
-                            "scraped_at": datetime.utcnow().strftime(
-                                "%Y-%m-%dT%H:%M:%S.%fZ"
-                            ),
                             "score": submission.score,
                             "subreddit_name": submission.subreddit.display_name,
                             "subreddit_description": (
